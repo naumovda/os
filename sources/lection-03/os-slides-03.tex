@@ -226,9 +226,188 @@
 
 \section{Препроцессор}
 
-%\section{Указатели и массивы}
-%\section{Указатели на функцию. Сложные декларации}
-%\section{Структуры и объединения}
-%\section{Файлы} 
+\begin{frame}
+Этапы стандратной схемы трансляции Си-программы
+\begin{itemize}
+\item препроцессирование;
+\item компиляция.
+\end{itemize}
+\begin{block}{Препроцессор}
+предварительная стадия обработки исходного текста программы, по окончании работы которой модифицированный исходный текст поступает на вход компилятору.
+\end{block}
+Задачи препроцессора
+\begin{itemize}
+\item удаление комментариев;
+\item «склеивание» строчек, последним символом которых является $\setminus$, со следующей за ними строкой;
+\item конкатенация рядом стоящих строковых литералов;
+\item макроподстановка;
+\item условная компиляця;
+\item подключение файлов.
+\end{itemize}
+\end{frame}
+
+\begin{frame}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{images/lec03-pic14.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+Включение файлов: на место директивы \#include препроцессор подставляет содержимое указанного в ней файла.
+\begin{itemize}
+\item Если имя файла заключено в $<$ $>$, то он ищется в стандартном каталоге подключаемых файлов.
+\item Если же имя файла заключено в кавычки и не является полным (абсолютным) путевым именем файла, то препроцессор рассматри вает его как относительный путь от местонахождения того файла, в котором встретился \#include.
+\end{itemize}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{images/lec03-pic15.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+Макроподстановка: \#define имя подставляемый\_текст.
+\begin{itemize}
+\item Если имя файла заключено в $<$ $>$, то он ищется в стандартном каталоге подключаемых файлов.
+\item Если же имя файла заключено в кавычки и не является полным (абсолютным) путевым именем файла, то препроцессор рассматри вает его как относительный путь от местонахождения того файла, в котором встретился \#include.
+\end{itemize}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{images/lec03-pic16.png}
+\end{figure}
+"Забыть" определенное имя - \#undef имя
+\end{frame}
+
+\begin{frame}
+\begin{block}{Условная компиляция}
+управление выборочным включением того или иного текста в программу в зависимости от вычисляемого на этапе препроцессирования условия.
+\end{block}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{images/lec03-pic17.png}
+\end{figure}
+Пример
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{images/lec03-pic18.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+Пример
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.5]{images/lec03-pic19.png}
+\end{figure}
+\end{frame}
+
+\section{Указатели и массивы}
+
+\begin{frame}
+\begin{block}{Указатель}
+переменная, значение которой есть адрес некоторой области памяти.
+\end{block}
+Пример
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{images/lec03-pic20.png}
+\end{figure}
+Операции:
+\begin{itemize}
+\item \& - операция взятия адреса объекта;
+\item * - операция косвенной адресации (или раскрытия ссылки).
+\end{itemize}
+Пример
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{images/lec03-pic21.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Нетипизированный указатель}
+указатель на неопределенный тип: void *vp
+\end{block}
+Пример
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{images/lec03-pic22.png}
+\end{figure}
+Пример
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{images/lec03-pic23.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Массив}
+собой совокупность элементов одного и того же типа. 
+\end{block}
+Пример:
+\begin{itemize}
+\item int v[10];
+\item int m[3][4];
+\item операция индексации: m[i][j]
+\item инициализация: int m1[5]={0,1,2,3}, m2[10]={0};
+\item char str1[ ]={'a','b','c','$\setminus$0'};
+\item char str2[ ]="abc"
+\item int w[3][3]={{1,2,3},{4,5}};
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Связь массивов и указателей}
+\begin{block}{Имя массива}
+константный указатель, содержащий адрес его нулевого элемента.
+\end{block}
+Пример:
+double m[10], *dp;;
+\begin{itemize}
+\item dp = m;
+\item dp = \&m[0];
+\end{itemize}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{images/lec03-pic24.png}
+\end{figure}
+Операция индексации E1[E2] определена как *(E1+E2).
+\end{frame}
+
+\begin{frame}{В вещественном массиве найти максимальное значение}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{images/lec03-pic25.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Написать функцию суммирования двух целочисленных векторов}
+Размер векторов и результирующий массив передаются в качестве параметров
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.7]{images/lec03-pic26.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Написать функцию, определяющую длину строки}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{images/lec03-pic27.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Написать функцию копирования строк}
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.75]{images/lec03-pic28.png}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Распечатать последний символ каждой строки}
+Написать функцию, которой в качестве аргумента передается массив указателей на строки (признак конца – нулевой указатель). Распечатать последний символ каждой строки.
+\begin{figure}[h]
+\centering
+\includegraphics[scale=0.7]{images/lec03-pic29.png}
+\end{figure}
+\end{frame}
 
 \end{document}
