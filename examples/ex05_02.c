@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <string.h>
+//#include <string.h>
 
 #define MAX 81
 #define WORD_MAX 20
