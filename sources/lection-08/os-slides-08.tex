@@ -1,0 +1,102 @@
+\documentclass{beamer}
+\mode<presentation>
+\usetheme{CambridgeUS}
+\usepackage[russian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T2A]{fontenc}
+\usepackage{sansmathaccent}
+
+\usepackage{verbatim}
+\usepackage{alltt}
+
+\pdfmapfile{+sansmathaccent.map}
+\title[Язык C]{Управление процессами, часть 6}
+\author{Наумов Д.А., доц. каф. КТ}
+\date[15.10.2019] {Операционные системы и системное программное обеспечение, 2019}
+
+\begin{document}
+
+%ТИТУЛЬНЫЙ СЛАЙД
+\begin{frame}
+  \titlepage
+\end{frame}
+  
+%СОДЕРЖАНИЕ ЛЕКЦИИ
+\begin{frame}
+  \frametitle{Содержание лекции}
+  \tableofcontents  
+\end{frame}
+
+\section{Концепция потоков в Linux}
+
+\begin{frame}{Потоки}
+\begin{block}{Потоки (threads)}
+позволяют одновременно выполнять разные действия в контексте одной программы. 
+\end{block}
+Механизмы работы с потоками реализованы в \textit{Linux} в отдельной библиотеке \textit{Pthread}.
+
+В рамках лекции будут рассмотрены следующие темы:
+\begin{itemize}
+\item Понятие потоков и их особенности.
+\item Создание и завершение потока.
+\item Синхронизация потоков.
+\item Получение информации о потоках.
+\item Обмен данными между потоками.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+Когда один процесс вызывает fork(), в системе появляется другой процесс, который выполняет тот же код. Но данные, которыми манипулирует этот код, являются независимой копией данных процесса-родителя. 
+\begin{alltt}
+#include <stdio.h>
+#include <unistd.h>
+int main (void)\{
+  int a = 10;
+  pid\_t status = fork ();
+  if (!status) \{
+    a++; 
+    printf ("Child's a=\%d", a);
+    return 0;
+  \}
+  wait ();
+  printf ("Parent's a=\%d", a);
+  return 0;
+\}
+\end{alltt}
+\end{frame}
+
+\begin{frame}
+\begin{block}{Процессы...}
+\begin{itemize}
+\item ... могут иметь общие данные, но для этого программисты обращаются к методам межпроцессного взаимодействия (interprocess communication). 
+\item Межпроцессное взаимодействие подчас требует сложных манипуляций со стороны программиста.
+\item В некоторых случаях плохо реализованное межпроцессное взаимодействие может стать мишенью для злоумышленников.
+\end{itemize}
+\end{block}
+\begin{block}{Потоки}
+\begin{itemize}
+\item ...позволяют в рамках одной программы выполнять одновременно несколько
+действий, используя при этом общие данные. 
+\item ...выполняются так же, как и процессы, т. е. независимо
+\end{itemize}
+\end{block}
+\end{frame}
+
+\section{Создание потока}
+
+\begin{frame}{Создание потока в Linux}
+\begin{enumerate}
+\item Создается функция, которая называется потоковой функцией.
+\item При помощи функции pthread\_create() создается поток, в котором начинает параллельно остальной программе выполняться потоковая функция.
+\item Вызывающая сторона продолжает выполнять какие-то действия, не дожидаясь завершения потоковой функции.
+\end{enumerate}
+Чтобы подключить библиотеку Pthread к программе, нужно передать компоновщику опцию -lpthread.
+\end{frame}
+
+%\section{Завершение потока}
+%\section{Ожидание потока}
+%\section{Получение информации о потоке}
+%\section{Отмена потока}
+%\section*{Дополнительная инфомация}
+
+\end{document}
