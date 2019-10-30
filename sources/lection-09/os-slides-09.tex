@@ -374,10 +374,203 @@ int fstatvfs (int FD, struct statvfs * FS);
 \item \textit{f\_blocks} - целое число, показывающее количество блоков в файловой системе.
 \item \textit{f\_bfree} - целое число, содержащее количество свободных блоков в файловой системе.
 \item \textit{f\_bavail} содержит число доступных блоков, без учета резервных блоков, которые некоторые файловые системы выделяют для специального использования.
-\item \textit{f\_namemax} - целое число, показывающее максимально возможную длину имени файла в данной файловой системе. \end{itemize}
+\item \textit{f\_namemax} - целое число, показывающее максимально возможную длину имени файла в данной файловой системе. 
+\end{itemize}
 \end{frame}
 
-%\section{Чтение каталогов}
+\begin{frame}[fragile]{Примеры}
+\begin{block}{Пример 1. Работа функции statvfs()}
+ex09\_01.c
+\end{block}
+\begin{block}{Пример 2. Работа функции fstatvfs()}
+ex09\_02.c
+\end{block}
+\end{frame}
+
+\section{Чтение каталогов}
+
+\begin{frame}[fragile]{Текущий каталог: getcwd()}
+Каждый дочерний процесс наследует от своего родителя независимую копию текущего каталога.
+
+Для получения значения текущего каталога используется системный вызов getcwd(), объявленный в заголовочном файле unistd.h следующим образом:
+\begin{alltt}
+char * getcwd (char * BUFFER, size_t SIZE);
+\end{alltt}
+Чтобы получить только базовое имя каталога, можно воспользоваться функцией basename(), объявленной в заголовочном файле string.h следующим образом:
+\begin{alltt}
+char * basename (const char * PATH);
+\end{alltt}
+\begin{block}{Примеры. Получение текущего каталога}
+ex09\_03.c, ex09\_04.c
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Смена текущего каталога: chdir()}
+Любой процесс может сменить свой текущий каталог. Это можно сделать при помощи одного из приведенных далее системных вызовов, объявленных в заголовочном файле unistd.h:
+\begin{alltt}
+int chdir (const char * PATH);
+int fchdir (int FD);
+\end{alltt}
+\begin{itemize}
+\item Обе функции возвращают 0 при успешном завершении и –1, если произошла ошибка. 
+\item Системный вызов chdir() изменяет текущий каталог, используя его имя (путь),
+а fchdir() вместо имени читает файловый дескриптор каталога.
+\end{itemize}
+\begin{block}{Примеры. Смена текущего каталога}
+ex09\_05.c, ex09\_06.c
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Открытие и закрытие каталога}
+Пользовательские библиотеки располагаются на верхнем уровне реализации файловой системы, каталог здесь рассматривается как самостоятельная сущность, не являющаяся особым файловым типом. 
+\begin{itemize}
+\item В стандартной библиотеке языка C абстракцией каталога является указатель типа DIR. 
+\item Прежде чем читать содержимое каталога, его нужно открыть, а прочитанный каталог полагается закрывать.
+\end{itemize}
+\begin{alltt}
+DIR * opendir (const char * NAME);
+int closedir (DIR * DIRP);
+DIR * fdopendir (int FD);
+\end{alltt}
+\begin{itemize}
+\item Первая функция открывает каталог с именем NAME и возвращает указатель типа DIR. В случае ошибки возвращается NULL. 
+\item Функция closedir() закрывает каталог и возвращает 0 при успешном завершении, в случае ошибки –1
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Чтение каталога: readdir()}
+Для чтения содержимого каталога применяется функция readdir(), объявленная
+в заголовочном файле dirent.h следующим образом:
+\begin{alltt}
+struct dirent * readdir (DIR * DIRP);
+\end{alltt}
+Структура dirent содержит несколько полей, но нам понадобится только одно из
+них:
+\begin{alltt}
+struct dirent {
+  /* ... */
+  char * d\_name;
+};
+\end{alltt}
+Функция readdir() заносит в поле d\_name структуры dirent имя очередного элемента просматриваемого каталога. Если каталог полностью просмотрен, то readdir() возвращает NULL.
+\begin{block}{Примеры. Просмотр каталога}
+ex09\_07.c
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Получение данных о файлах: семейство stat()}
+Дополнительную информацию о файлах позволяют получить системные вызовы семейства stat(), объявленные в заголовочном файле sys/stat.h:
+\begin{alltt}
+int stat (const char * FNAME, struct stat * STATISTICS);
+int fstat (int FD, struct stat * STATISTICS);
+int lstat (const char * FNAME, struct stat * STATISTICS);
+\end{alltt}
+\begin{itemize}
+\item Системный вызов stat() читает информацию о файле с именем FNAME и записывает эту информацию в структуру stat по адресу STATISTICS. 
+\item Вызов fstat() также читает информацию о файле, который представлен дескриптором FD. 
+\item lstat() работает аналогично stat(), но при обнаружении символической ссылки lstat() читает информацию о ней, а не о файле, на который эта ссылка указывает.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+Структура stat также объявлена в файле sys/stat.h. Для нас наибольший интерес представляют следующие поля этой структуры:
+\begin{alltt}
+struct stat \{
+  mode\_t st\_mode;
+  uid\_t st\_uid;
+  gid\_t st\_gid;
+  off\_t st\_size;
+  time\_t st\_atime;
+  time\_t st\_mtime;\};
+\end{alltt}
+\begin{itemize}
+\item st\_mode - это режим файла.
+\item st\_uid - это числовой идентификатор владельца файла;
+\item st\_gid - идентификатор группы;
+\item st\_size - это размер файла в байтах;
+\item st\_atime - содержит дату и время последнего обращения к файлу;
+\item st\_mtime - содержит дату и время последней модификации файла.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Примеры}
+\begin{block}{Пример 8. Системный вызов stat()}
+ex09\_08.c
+\end{block}
+\begin{block}{Пример 9. Системный вызов fstat()}
+ex09\_09.c
+\end{block}
+\begin{block}{Пример 10. Системный вызов lstat() }
+ex09\_10.c
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Биты режима файла}
+Биты режима файла делятся на три группы:
+\begin{itemize}
+\item базовые права доступа;
+\item расширенные права доступа;
+\item тип файла.
+\end{itemize}
+Проверка базовых прав доступа: сравнить режим файла (st\_mode структуры stat) с одной из
+констант из sys/types.h (S\_IRUSR, S\_IWUSR и т. п.) с использованием операции побитовой конъюнкции (И).
+\begin{alltt}
+mode & S_IWUSR //владельцу разрешено писать в файл
+\end{alltt}
+Проверка расширенных прав доступа:
+\begin{itemize}
+\item S\_ISUID - установка и проверка бита SUID;
+\item константа S\_ISGID установка и проверка бита SGID;
+\item константа S\_ISVTX установка и проверка sticky-бита.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Биты режима файла}
+Для определения типа файла применяются следующие макросы::
+\begin{itemize}
+\item S\_ISDIR(mode) - каталог;
+\item S\_ISCHR(mode) - символьное устройство;
+\item S\_ISBLK(mode) - блочное устройство;
+\item S\_ISREG(mode) - обычный файл;
+\item S\_ISFIFO(mode) - именованный канал FIFO;
+\item S\_ISLNK(mode) - символическая ссылка;
+\item S\_ISSOCK(mode) - сокет.
+\end{itemize}
+\begin{block}{Пример. Чтение содержимого каталога}
+ex09\_11.c
+\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Чтение ссылок}
+Программа ls, вызванная с флагом –l, позволяет узнать, на какой файл указывает
+символическая ссылка:
+\begin{alltt}
+\$ touch myfile
+\$ ln -s myfile mylink
+\$ ls -l mylink
+lrwxrwxrwx 1 nnivanov nnivanov 6 2011-05-07 
+    09:59 mylink -> myfile
+\end{alltt}
+Такая операция называется разыменованием символической ссылки (symlink dereferencing) или разрешением имени файла (filename resolution).
+\end{frame}
+
+\begin{frame}[fragile]{Чтение ссылок}
+Разыменование символических ссылок осуществляется при помощи системного вызова readlink(),
+который объявлен в заголовочном файле unistd.h следующим образом:
+\begin{alltt}
+ssize_t readlink (const char * SYMLNK, char * BUF, 
+   size_t SIZE);
+\end{alltt}
+\begin{itemize}
+\item системный вызов помещает в буфер BUF размера SIZE путь к файлу, на который указывает символическая ссылка SYMLNK. 
+\item Возвращаемое значение — число байтов, записанных в буфер BUF. В случае ошибки возвращается –1.
+\item readlink() не завершает буфер нультерминатором.
+\end{itemize}
+\begin{block}{Пример. Чтение ссылок}
+ex09\_12.c
+\end{block}
+\end{frame}
+
 %\section{Операции над файлами}
 
 %\begin{figure}[h]
