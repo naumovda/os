@@ -1,0 +1,17 @@
+\frametitle{Удаление файла: unlink()}
+\begin{alltt}
+#include <stdio.h>
+#include <unistd.h>
+
+int main (int argc, char ** argv)
+\{
+  if (argc < 2) return 1;
+
+  if (unlink (argv[1]) == -1) \{
+    fprintf (stderr, "Cannot unlink file (\%s)", argv[1]);
+    return 1;
+  \}
+
+  return 0;
+\}
+\end{alltt}
