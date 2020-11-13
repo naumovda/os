@@ -240,8 +240,8 @@ Filesystem Inodes IUsed IFree IUse\% Mounted on
 \end{figure}
 \end{frame}
 
-\begin{frame}[fragile]{Пример unlink2.c}
-Cистемный вызов unlink() удаляет ссылку на индексный узел. Если эта ссылка была последней, то индекс освобождается.
+\begin{frame}[fragile]
+Cистемный вызов unlink() (unlink2.c) удаляет ссылку на индексный узел. Если эта ссылка была последней, то индекс освобождается.
 \begin{alltt}
 \$ touch file1
 \$ ln file1 file2
@@ -261,6 +261,8 @@ Hello World
 \end{alltt}
 \end{frame}
 
+\subsection{Перемещение файла}
+
 \begin{frame}[fragile]{Перемещение файлов}
 Системный вызов rename() позволяет переименовывать или перемещать файл в
 пределах одной файловой системы.
@@ -274,7 +276,7 @@ int rename (const char * OLDF, const char * NEWF);
 Пример (rename1.c):
 \begin{figure}[h]
 \centering
-\includegraphics[scale=0.75]{images/lec10-pic02.png}
+\includegraphics[scale=0.6]{images/lec10-pic02.png}
 \end{figure}
 \end{frame}
 
@@ -291,6 +293,8 @@ Hello World
 \end{alltt}
 Перемещение открытого файла никак не отражается на операциях ввода-вывода.
 \end{frame}
+
+\subsection{Создание ссылок}
 
 \begin{frame}[fragile]{Создание ссылок}
 Ссылки в файловой системе Linux бывают двух типов:
@@ -311,6 +315,8 @@ int symlink (const char * FROM, const char * TO);
 \end{itemize}
 \end{frame}
 
+\subsection{Создание и удаление каталогов}
+
 \begin{frame}[fragile]{Создание каталога}
 Для создания каталога используется системный вызов mkdir():
 \begin{alltt}
@@ -330,22 +336,12 @@ int mkdir (const char * NAME, mode_t MODE)
 \begin{alltt}
 \$ ./mkdir2 mydir
 \$ ls -l | grep mydir
-drwxr-xr-x 2 nnivanov nnivanov 4096 2011-05-07 10:09 mydir
+drwxr-xr-x 2 kt kt 4096 2011-05-07 10:09 mydir
 \end{alltt}
 В системный вызов mkdir() передавался аргумент mode, в котором все биты базовых прав доступа установлены в единицу. Но вывод программы ls показывает, что созданный каталог имеет права доступа 0755.
 \end{frame}
 
-\begin{frame}[fragile]{Создание каталога}
-Программа mkdir работает не так, как мы ожидали::
-\begin{alltt}
-\$ ./mkdir2 mydir
-\$ ls -l | grep mydir
-drwxr-xr-x 2 nnivanov nnivanov 4096 2011-05-07 10:09 mydir
-\end{alltt}
-В системный вызов mkdir() передавался аргумент mode, в котором все биты базовых прав доступа установлены в единицу. Но вывод программы ls показывает, что созданный каталог имеет права доступа 0755.
-\end{frame}
-
-\begin{frame}[fragile]{Создание каталога}
+\begin{frame}[fragile]
 К каждому процессу в Linux привязана маска прав доступа, которая наследуется потомком от родительского процесса (аналогично текущему каталогу, окружению и т. п.). 
 \begin{block}{Маска прав доступа}
 число, представляющее собой набор битов прав доступа, которые никогда не будут устанавливаться для создаваемых процессом файлов или каталогов.
@@ -358,7 +354,7 @@ drwxr-xr-x 2 nnivanov nnivanov 4096 2011-05-07 10:09 mydir
 Маска прав доступа 0022 разрешает при создании файлов или каталогов устанавливать любые права доступа для владельца, но не разрешает права на запись для группы и остальных пользователей.
 \end{frame}
 
-\begin{frame}[fragile]{Создание каталога}
+\begin{frame}[fragile]{Маски прав доступа}
 Текущий процесс вправе изменять свою копию маски прав доступа:
 \begin{alltt}
 \$ umask 0044
@@ -390,7 +386,7 @@ drwxrwxrwx 2 kt kt 4096 2011-05-07 10:15 mydir
 \end{alltt}
 \end{frame}
 
-\begin{frame}[fragile]{Создание каталога}
+\begin{frame}[fragile]{Системный вызов umask()}
 Программа может изменить маску прав доступа текущего процесса при помощи
 системного вызова umask():
 \begin{alltt}
@@ -407,7 +403,7 @@ mode_t umask (mode_t MASK);
 0022
 \$ ./mkdir3 mydir
 \$ ls -l | grep mydir
-drwxrwxrwx 2 nnivanov nnivanov 4096 2011-05-07 10:17 mydir
+drwxrwxrwx 2 kt kt 4096 2011-05-07 10:17 mydir
 \end{alltt}
 \end{frame}
 
@@ -419,7 +415,7 @@ drwxrwxrwx 2 nnivanov nnivanov 4096 2011-05-07 10:17 mydir
 \begin{alltt}
 \$ ./mkdir4 mydir
 \$ ls -l | grep mydir
-drwxrwxrwt 2 nnivanov nnivanov 4096 2011-05-07 10:20 mydir
+drwxrwxrwt 2 kt kt 4096 2011-05-07 10:20 mydir
 \end{alltt}
 \end{frame}
 
@@ -428,8 +424,10 @@ drwxrwxrwt 2 nnivanov nnivanov 4096 2011-05-07 10:20 mydir
 \begin{alltt}
 int rmdir (const char * DIR)
 \end{alltt}
-При успешном завершении rmdir() возвращает 0. В случае ошибки возвращается –1. Аргумент DIR — это имя (путь) к каталогу, который следует удалить.
-
+\begin{itemize}
+\item Аргумент DIR — это имя (путь) к каталогу, который следует удалить.
+\item При успешном завершении rmdir() возвращает 0. В случае ошибки возвращается –1. 
+\end{itemize}
 Пример: 
 \begin{itemize}
 \item rmdirdemo.c
